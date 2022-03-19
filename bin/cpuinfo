@@ -1,0 +1,4 @@
+#!/bin/bash
+
+grep Model /proc/cpuinfo | awk -F': ' '{ print $2 }'
+

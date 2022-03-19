@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ "$1" == "" ]; then
+    echo "Missing argument: enable|disable"
+    exit
+fi
+
+if [ "$1" != "enable" ] && [ "$1" != "disable" ]; then
+    echo "Invalid argument: $1"
+    exit
+fi
+
+if [ "$1" == "enable" ]; then
+    GEXP="disabled"
+else
+    GEXP="enabled"
+fi
+
+SYSD_CMD="sudo /bin/systemctl list-unit-files --no-legend tgr.cloud.*"
+
+UNIT_FILES=`$SYSD_CMD | grep $GEXP | awk '{ print $1 }'`
+
+for UF in $UNIT_FILES ; do
+    sudo /bin/systemctl $1 --now $UF
+done
+
+$SYSD_CMD

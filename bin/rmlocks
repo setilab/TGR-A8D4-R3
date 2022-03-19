@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd /home/pi/tgr/console/sessions
+
+find . -name "session-*.lock" -atime +1 -exec rm -f {} \;

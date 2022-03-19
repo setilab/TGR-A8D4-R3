@@ -1,0 +1,34 @@
+#!/bin/bash
+
+unset ssid
+unset psk
+
+case $1 in
+    connect)
+        while getopts s:p: opt; do
+            case $opt in
+                s) ssid=$OPTARG ;;
+                p) psk=$OPTARG ;;
+                *)
+                    echo 'Error in command line parsing' >&2
+                    exit 1
+            esac
+        done
+        ID=`wpa_cli -iwlan0 add_network`
+        wpa_cli -iwlan0 set_network $ID ssid '"'$ssid'"'
+        wpa_cli -iwlan0 set_network $ID psk '"'$psk'"'
+        wpa_cli -iwlan0 set_network $ID key_mgmt WPA-PSK
+        wpa_cli -iwlan0 enable $ID
+        wpa_cli -iwlan0 select $ID
+        wpa_cli -iwlan0 save
+    ;;
+    show)
+        wpa_cli -iwlan0 list_networks | grep CURRENT | awk '{ print $2 }'
+    ;;
+    list)
+        RESULT=`wpa_cli -iwlan0 scan`
+        sleep 5
+        wpa_cli -iwlan0 scan_results | grep -v bssid | awk -F'\t' '{ print $5 }' | sort | uniq | awk '{ if (NF==2) print $1 " " $2 ; else if ($1 != "") print $1 }'
+    ;;
+esac
+

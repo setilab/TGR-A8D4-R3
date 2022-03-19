@@ -1,0 +1,13 @@
+#!/bin/bash
+
+CMD="/bin/systemctl list-unit-files --all --no-legend --no-pager tgr.*"
+
+if [ "$1" == "start" ] || [ "$1" == "stop" ]; then
+    for s in `$CMD | awk '{ print $1 }'`; do
+        sudo systemctl $1 $s
+        echo $s
+    done
+fi
+
+/bin/systemctl list-unit-files --all --no-legend --no-pager tgr.*
+/bin/systemctl list-units --all --no-legend --no-pager tgr.*

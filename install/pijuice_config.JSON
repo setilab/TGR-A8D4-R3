@@ -1,0 +1,63 @@
+{
+  "system_task": {
+    "enabled": true,
+    "wakeup_on_charge": {
+      "enabled": true,
+      "trigger_level": "2"
+    },
+    "min_charge": {
+      "enabled": false,
+      "threshold": "5"
+    },
+    "ext_halt_power_off": {
+      "enabled": true,
+      "period": "30"
+    },
+    "watchdog": {
+      "period": ""
+    },
+    "min_bat_voltage": {
+      "threshold": ""
+    }
+  },
+  "system_events": {
+    "no_power": {
+      "enabled": true,
+      "function": "SYS_FUNC_HALT_POW_OFF"
+    },
+    "forced_power_off": {
+      "enabled": false,
+      "function": "NO_FUNC"
+    },
+    "forced_sys_power_off": {
+      "enabled": false
+    },
+    "low_battery_voltage": {
+      "enabled": false
+    },
+    "low_charge": {
+      "enabled": true,
+      "function": "USER_EVENT"
+    },
+    "watchdog_reset": {
+      "enabled": false
+    }
+  },
+  "user_functions": {
+    "USER_FUNC1": "",
+    "USER_FUNC2": "",
+    "USER_FUNC3": "",
+    "USER_FUNC4": "",
+    "USER_FUNC5": "",
+    "USER_FUNC6": "",
+    "USER_FUNC7": "",
+    "USER_FUNC8": "",
+    "USER_FUNC9": "",
+    "USER_FUNC10": "",
+    "USER_FUNC11": "",
+    "USER_FUNC12": "",
+    "USER_FUNC13": "",
+    "USER_FUNC14": "",
+    "USER_FUNC15": ""
+  }
+}

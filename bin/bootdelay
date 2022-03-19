@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ "$1" == "" ];then
+    SEC=10
+else
+    SEC=$1
+fi
+
+sleep $SEC

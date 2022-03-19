@@ -1,0 +1,3 @@
+*/2 * * * * /usr/bin/python /home/pi/tgr/sbin/svc-health.py 2>&1 > /dev/null
+5 0 * * * /home/pi/tgr/bin/rmlocks 2>&1 > /dev/null
+@weekly sudo journalctl -u tgr.* --vacuum-time=2days | grep "Vacuuming done"

@@ -1,0 +1,1 @@
+fbcon=map:2 fbcon=font:VGA8x8 quiet splash plymouth.ignore-serial-consoles logo.nologo vt.global_cursor_default=0 video=HDMI-A-1:800x480@60,rotate=180
