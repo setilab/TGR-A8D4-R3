@@ -1,3 +1,0 @@
-#!/bin/bash
-
-sudo /sbin/iwlist wlan0 scan | grep ESSID | awk -F ":" '{ print $2 }' | grep -v '""' | awk -F '"' '{ print $2 }' | sort | uniq

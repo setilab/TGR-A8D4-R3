@@ -1,7 +1,0 @@
-#!/bin/bash
-
-curl -i -X PUT -d "delay=0" "http://tplconnect:8080/system/shutdown"
-
-sleep 5
-
-sudo shutdown -h now

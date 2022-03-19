@@ -1,6 +1,0 @@
-#!/bin/bash
-
-/usr/bin/gpio -g mode 18 pwm
-/usr/bin/gpio pwmc 1000
-/usr/bin/gpio -g pwm 18 0
-
