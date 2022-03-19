@@ -1,0 +1,15 @@
+[Unit]
+Description=The Greenroom cloud request handler service
+Requires=tgr.redis.service tgr.sensor.module.service tgr.api.service
+After=tgr.redis.service tgr.sensor.module.service tgr.api.service
+
+[Service]
+Type=simple
+Restart=always
+EnvironmentFile=/home/pi/tgr/etc/tgr.conf
+ExecStart=/usr/bin/python -u /home/pi/tgr/sbin/svc-cloud-requests.py
+SyslogIdentifier=tgr-cloud-requests
+
+[Install]
+WantedBy=multi-user.target
+

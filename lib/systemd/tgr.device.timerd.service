@@ -1,0 +1,14 @@
+[Unit]
+Description=The Greenroom device timer service
+After=tgr.redis.service tgr.udp.msg.service
+
+[Service]
+Type=simple
+Restart=always
+EnvironmentFile=/home/pi/tgr/etc/tgr.conf
+ExecStart=/usr/bin/python -u /home/pi/tgr/sbin/svc-device-timer.py
+SyslogIdentifier=tgr-device-timerd
+
+[Install]
+WantedBy=multi-user.target
+

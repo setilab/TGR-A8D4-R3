@@ -1,0 +1,15 @@
+[Unit]
+Description=The Greenroom sensor module service
+Requires=tgr.redis.service
+After=tgr.redis.service
+
+[Service]
+Type=simple
+Restart=always
+EnvironmentFile=/home/pi/tgr/etc/tgr.conf
+ExecStart=/usr/bin/python -u /home/pi/tgr/sbin/svc-sensor-module.py
+SyslogIdentifier=tgr-sensor-module
+
+[Install]
+WantedBy=multi-user.target
+

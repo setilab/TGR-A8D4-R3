@@ -1,0 +1,14 @@
+[Unit]
+Description=The Greenroom UDP message service
+After=network-online.target tgr.redis.service
+
+[Service]
+Type=simple
+Restart=always
+EnvironmentFile=/home/pi/tgr/etc/tgr.conf
+ExecStart=/usr/bin/python -u /home/pi/tgr/sbin/svc-udp-msg.py
+SyslogIdentifier=tgr-udp-msg
+
+[Install]
+WantedBy=multi-user.target
+

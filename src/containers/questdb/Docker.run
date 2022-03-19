@@ -1,0 +1,6 @@
+/usr/bin/docker run -d --restart=on-failure \
+-p 9002:9000 \
+-p 8812:8812 \
+-p 9003:9003 \
+-v /home/pi/tgr/data:/root/.questdb \
+--name tgr.questdb questdb/questdb

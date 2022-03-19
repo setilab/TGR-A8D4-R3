@@ -1,0 +1,16 @@
+[Unit]
+Description=The Greenroom redis service
+Requires=containerd.service docker.service
+After=containerd.service docker.service
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/docker start -a tgr.redis
+ExecStartPost=/home/pi/tgr/bin/bootdelay 10
+ExecStop=-/usr/bin/docker stop -t 2 tgr.redis
+SyslogIdentifier=tgr-redis
+
+[Install]
+WantedBy=multi-user.target
+
