@@ -1,1 +1,0 @@
-/usr/bin/docker run -d --restart=on-failure -p 6379:6379 -v /home/pi/tgr/data:/data --name tgr.redis cragginstylie/tgr.redis:arm64-v1.0

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # svc-udp-msg.py -- Message service for the controller. Listens on UDP port
 # number 63000 by default.
@@ -43,8 +43,10 @@ def udpMsgServer():
         # receive data from client (data, addr)
         data,addr = s.recvfrom(1024)
 
-        jsonData = json.loads(data.decode())
+        print(data.decode())
+        #jsonData = json.loads(data.decode())
         #print(jsonData)
+        jsonData = {}
 
         if "system" in jsonData:
             try:

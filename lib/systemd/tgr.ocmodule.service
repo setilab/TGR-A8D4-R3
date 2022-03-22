@@ -1,0 +1,15 @@
+[Unit]
+Description=The Greenroom Output Control Module (Emulator) service
+Requires=containerd.service docker.service
+After=containerd.service docker.service
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/docker start -a tgr.ocmodule
+ExecStop=-/usr/bin/docker stop -t 2 tgr.ocmodule
+SyslogIdentifier=tgr-ocmodule
+
+[Install]
+WantedBy=multi-user.target
+

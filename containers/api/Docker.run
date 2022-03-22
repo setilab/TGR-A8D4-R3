@@ -1,0 +1,1 @@
+/usr/bin/docker run -d --restart=on-failure -p 8080:8080 --name tgr.api setilab/tgr.api:amd64-v1.0

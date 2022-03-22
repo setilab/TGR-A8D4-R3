@@ -1,0 +1,1 @@
+/usr/bin/docker run -d --restart=on-failure -p 80:80 --name tgr.ocmodule setilab/tgr.ocmodule:amd64-v1.0

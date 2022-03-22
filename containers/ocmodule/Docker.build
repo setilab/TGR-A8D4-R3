@@ -1,0 +1,2 @@
+docker build -t tgr.ocmodule:amd64-v1.0 -f ./Dockerfile /home/pi/tgr/src/ocmodule
+docker tag  tgr.ocmodule:amd64-v1.0 setilab/tgr.ocmodule:amd64-v1.0

@@ -1,0 +1,2 @@
+docker build -t tgr.api:amd64-v1.0 -f ./Dockerfile /home/pi/tgr/src/api
+docker tag  tgr.api:amd64-v1.0 setilab/tgr.api:amd64-v1.0
