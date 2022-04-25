@@ -1,13 +1,13 @@
 [Unit]
-Description=The Greenroom API Service
-After=network-online.target tgr.redis.service
+Description=The Greenroom API service
+Requires=containerd.service docker.service
+After=containerd.service docker.service
 
 [Service]
 Type=simple
 Restart=always
-WorkingDirectory=/home/pi/tgr/api
-EnvironmentFile=/home/pi/tgr/etc/tgr.conf
-ExecStart=/usr/bin/python -u /home/pi/tgr/api/api.py
+ExecStart=/usr/bin/docker start -a tgr.api
+ExecStop=-/usr/bin/docker stop -t 2 tgr.api
 SyslogIdentifier=tgr-api
 
 [Install]

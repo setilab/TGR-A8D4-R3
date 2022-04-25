@@ -21,7 +21,6 @@ def convert_c(c):
 class Settings(object):
 
     def __init__(self):
-        self.alarm = AlmSetting()
         self.controller = ControllerSettings()
         self.environmental = EnvSetting()
         self.manual = ManualSetting()
@@ -37,13 +36,12 @@ class Settings(object):
             return
 
         env = ks.hgetall("settings.environmental")
-        alarm = ks.hgetall("settings.alarm")
         controller = ks.hgetall("settings.controller")
         unit = ks.get("sensor.module.unit")
         controller["unit_standard"] = unit
         units = ks.hgetall("sensor.module.unit." + unit)
         controller["sensor_units"] = units
-        data = {'environmental':env,'alarm':alarm,'controller':controller}
+        data = {'environmental':env,'controller':controller}
 
         result = {'data': data}
         return result
@@ -142,56 +140,6 @@ class EnvSetting(object):
         return
 
 
-# /api/settings/alarm
-
-@cherrypy.expose
-class AlmSetting(object):
-
-    @cherrypy.tools.json_out()
-    def GET(self):
-
-        try:
-            ks = redis.Redis(host=RHOST,port=RPORT,db=0,decode_responses=True)
-        except:
-            raise cherrypy.HTTPError(502, "Unable to connect to Redis service.")
-            return
-
-        if not ks.exists("settings.alarm"):
-            raise cherrypy.HTTPError(502, "Missing key.")
-            return
-
-        env = ks.hgetall("settings.alarm")
-
-        result = {'data':env}
-        return result
-
-    @cherrypy.tools.json_in()
-    def PUT(self):
-
-        try:
-            ks = redis.Redis(host=RHOST,port=RPORT,db=0,decode_responses=True)
-        except:
-            raise cherrypy.HTTPError(502, "Unable to connect to Redis service.")
-            return
-
-        if not ks.exists("settings.alarm"):
-            raise cherrypy.HTTPError(502, "Missing key.")
-            return
-
-        almSettings = ks.hgetall("settings.alarm")
-        jsonData = cherrypy.request.json
-
-        for setting in jsonData.keys():
-            if not setting in almSettings:
-                raise cherrypy.HTTPError(400)
-                return
-
-        ks.hset("settings.alarm", mapping=jsonData)
-
-        cherrypy.response.status = 202
-        return
-
-
 # /api/settings/defaults
 
 @cherrypy.expose
@@ -207,9 +155,8 @@ class DefaultSettings(object):
             return
 
         env = ks.hgetall("settings.environmental.defaults")
-        alarm = ks.hgetall("settings.alarm.defaults")
         controller = ks.hgetall("settings.controller.defaults")
-        data = {'environmental':env,'alarm':alarm,'controller':controller}
+        data = {'environmental':env,'controller':controller}
 
         result = {'data': data}
         return result
@@ -224,11 +171,9 @@ class DefaultSettings(object):
             return
 
         env = ks.hgetall("settings.environmental.defaults")
-        alarm = ks.hgetall("settings.alarm.defaults")
         controller = ks.hgetall("settings.controller.defaults")
 
         ks.hset("settings.environmental", mapping=env)
-        ks.hset("settings.alarm", mapping=alarm)
         ks.hset("settings.controller", mapping=controller)
 
         cherrypy.response.status = 202
@@ -287,38 +232,8 @@ class ControllerSettings(object):
                 return
 
         if "unit_standard" in jsonData.keys():
-            unit = jsonData["unit_standard"]
-            if not unit == "us" and not unit == "intl":
-                raise cherrypy.HTTPError(400)
-                return
-            if unit == controller["unit_standard"]:
-                raise cherrypy.HTTPError(409)
-                return
-
-            env = ks.hgetall("settings.environmental")
-            alm = ks.hgetall("settings.alarm")
-            newEnv = {}
-            newAlm = {}
-            if unit == "us":
-                for setting in env:
-                    newEnv[setting] = "{}".format(convert_c(env[setting]))
-                for setting in alm:
-                    newAlm[setting] = "{}".format(convert_c(alm[setting]))
-            else:
-                for setting in env:
-                    newEnv[setting] = "{}".format(convert_f(env[setting]))
-                for setting in alm:
-                    newAlm[setting] = "{}".format(convert_f(alm[setting]))
-
-            ks.hset("settings.environmental", mapping=newEnv)
-            ks.hset("settings.alarm", mapping=newAlm)
-            ks.set("sensor.module.unit", unit)
-
-            cmd = ['/home/pi/tgr/bin/set_measurement_units', unit]
-            proc = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-            o,e = proc.communicate()
+            raise cherrypy.HTTPError(501)
+            return
 
         ks.hset("settings.controller", mapping=jsonData)
 

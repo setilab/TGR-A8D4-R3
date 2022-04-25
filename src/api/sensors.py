@@ -52,9 +52,6 @@ class Sensors(object):
         inrh = intSensorVals["humidity"]
         extemp = extSensorVals["temp"]
         exrh = extSensorVals["humidity"]
-        pres = extSensorVals["pressure"]
-        esp = extSensorVals["esp"]
-        dp = extSensorVals["dewpoint"]
         co2 = extSensorVals["co2"]
         lux = extSensorVals["lux"]
         wt = hydroSensorVals["temp"]
@@ -62,14 +59,10 @@ class Sensors(object):
 
         data = {'internal':{'temp':intemp,'humidity':inrh},
                 'external':{'temp':extemp,'humidity':exrh,
-                            'dewpoint':dp,'pressure':pres,'esp':esp,
                             'co2':co2,'lux':lux},
               'hydroponic':{'temp':wt,'ph':ph},
                    'units':{'temp':sensorUnits["temp"],
                             'humidity':sensorUnits["humidity"],
-                            'pressure':'Pa',
-                            'esp':'Pa',
-                            'dewpoint':sensorUnits["dewpoint"],
                             'co2':sensorUnits["co2"],
                             'lux':sensorUnits["lux"]}}
 

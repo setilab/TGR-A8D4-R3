@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
-#
-# svc-udp-msg.py -- Message service for the controller. Listens on UDP port
-# number 63000 by default.
-#
+
+"""
+Message service for the output module. Listens on UDP port
+number 63000 by default. Processes 4 different message
+categories: boot, config, heartbeat, & update
+
+boot:		messages about the module itself
+config:		messages containing the module's device properties
+heartbeat:	message every 10s with all device states
+update:		message whenever a device state changes
+
+"""
+
 import os
 import socket
 import sys
@@ -43,10 +52,8 @@ def udpMsgServer():
         # receive data from client (data, addr)
         data,addr = s.recvfrom(1024)
 
-        print(data.decode())
-        #jsonData = json.loads(data.decode())
+        jsonData = json.loads(data.decode())
         #print(jsonData)
-        jsonData = {}
 
         if "system" in jsonData:
             try:

@@ -7,7 +7,7 @@ After=tgr.redis.service
 Type=simple
 Restart=always
 EnvironmentFile=/home/pi/tgr/etc/tgr.conf
-ExecStart=/usr/bin/python -u /home/pi/tgr/sbin/svc-sensor-module.py
+ExecStart=/usr/bin/python3 -u /home/pi/tgr/sbin/svc-sensor-module.py
 SyslogIdentifier=tgr-sensor-module
 
 [Install]

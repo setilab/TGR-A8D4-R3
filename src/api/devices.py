@@ -19,10 +19,8 @@ retries = 3
 class Devices(object):
 
     def __init__(self):
-        self.add = AddDevice()
         self.id = Device()
         self.names = AllDeviceNames()
-        self.networks = DeviceNetworks()
         self.properties = AllDeviceProperties()
         self.states = AllDeviceStates()
         self.types = DeviceTypes()
@@ -43,67 +41,6 @@ class Devices(object):
 
         deviceIds.sort()
         return {'data': deviceIds}
-
-
-# /api/devices/add
-
-@cherrypy.expose
-class AddDevice(object):
-
-    @cherrypy.tools.json_in()
-    def POST(self):
-
-        if not "id" in cherrypy.request.json:
-            raise cherrypy.HTTPError(400, "Missing device id.")
-            return
-        else:
-            id = cherrypy.request.json["id"]
-
-        ks = redis.Redis(host=RHOST,port=RPORT,db=0,decode_responses=True)
-
-        keyNs = "device.id."
-
-        if ks.exists(keyNs + id):
-            raise cherrypy.HTTPError(409, "Device ID already exists.")
-            return
-
-        deviceProps = cherrypy.request.json
-        deviceProps["module"] = "tplconnect"
-        deviceProps["output"] = "120VAC"
-        deviceProps["control"] = "relay"
-        deviceProps["type"] = "spare"
-        deviceProps["icon"] = "spare"
-        deviceProps["mode"] = "manual"
-        deviceProps["automation"] = "enabled"
-        deviceProps["online"] = "yes"
-
-        ks.hset(keyNs + id, mapping=deviceProps)
-
-        cherrypy.response.status = 202
-        return
-
-    @cherrypy.tools.json_in()
-    def PUT(self):
-
-        if not "ssid" in cherrypy.request.json:
-            raise cherrypy.HTTPError(400, "Missing device ssid.")
-            return
-        else:
-            ssid = cherrypy.request.json["ssid"]
-
-        cmd = ['/home/pi/tgr/bin/tplnewdevice', ssid]
-        proc = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        o, e = proc.communicate()
-        result = o.decode('ascii').strip('\n')
-
-        if int(result) == 0:
-            cherrypy.response.status = 202
-            return
-        else:
-            raise cherrypy.HTTPError(502, "Error response from device: {}".format(result))
-            return
 
 
 # /api/devices/names
@@ -232,58 +169,7 @@ class AllDeviceStates(object):
 class Device(object):
 
     def __init__(self):
-        self.energy = DeviceEnergy()
         self.timers = DeviceTimers()
-
-    @cherrypy.tools.json_out()
-    def DELETE(self, device):
-
-        ks = redis.Redis(host=RHOST,port=RPORT,db=0,decode_responses=True)
-
-        key = "device.id." + device
-        if not ks.exists(key):
-            raise cherrypy.HTTPError(404)
-            return
-
-        deviceProps = ks.hgetall(key)
-        if not "module" in deviceProps or deviceProps["module"] == "ocmodule":
-            raise cherrypy.HTTPError(409)
-            return
-
-        try:
-            response = requests.delete(TPLEP + "/tpl/devices/id/" + device)
-        except:
-            print("WARN: Unable to connect to {}".format(OCMEP))
-            raise cherrypy.HTTPError(502)
-            return
-        else:
-            if response.ok:
-                key = "device.timers.id." + device
-                timers = ks.smembers(key)
-                for t in timers:
-                    tk = "timer.properties." + t
-                    timerProps = ks.hgetall(tk)
-
-                    devices = timerProps["devices"].split(",")
-                    devices.remove(device)
-                    if len(devices) == 0:
-                        ks.delete(tk)
-                    else:
-                        timerProps["devices"] = devices
-                        ks.hset(tk, mapping=timerProps)
-
-                ks.delete("device.id." + device)
-                ks.delete("device.status.id." + device)
-                ks.delete("device.state.id." + device)
-                ks.delete("device.timers.id." + device)
-                ks.hdel("device.states", device)
-
-                cherrypy.response.status = 202
-                return
-            else:
-                print("WARN: Error response from tplconnect.")
-                raise cherrypy.HTTPError(502)
-                return
 
     @cherrypy.tools.json_out()
     def GET(self, device):
@@ -483,40 +369,6 @@ class Device(object):
         return
 
 
-# /api/devices/id/{device}/energy
-
-@cherrypy.expose
-class DeviceEnergy(object):
-
-    @cherrypy.tools.json_out()
-    def GET(self, device):
-
-        ks = redis.Redis(host=RHOST,port=RPORT,db=0,decode_responses=True)
-
-        key = "device.id." + device
-        if not ks.exists(key):
-            raise cherrypy.HTTPError(404, "Device not found.")
-            return
-
-        deviceProps = ks.hgetall(key)
-
-        if deviceProps["module"] == "tplconnect" and deviceProps["feature"] == "TIM:ENE":
-            try:
-                response = requests.get(TPLEP + "/tpl/devices/id/" + device + "/energy")
-            except:
-                raise cherrypy.HTTPError(502)
-                return
-            else:
-                if response.ok:
-                    return json.loads(response.text)
-                else:
-                    raise cherrypy.HTTPError(502)
-                    return
-        else:
-            raise cherrypy.HTTPError(501, "Device does not support e-metering.")
-            return
-
-
 # /api/devices/id/{device}/timers
 
 @cherrypy.expose
@@ -615,6 +467,7 @@ def setDeviceState(device, state):
                 url = "/relays"
 
             data = "name={}&{}={}".format(device, prop, state)
+            data = {"name":device,prop:state}
 
             try:
                 response = requests.post(OCMEP + url, data=data)
@@ -639,26 +492,11 @@ def setDeviceState(device, state):
                     ks.hset("device.id." + device, mapping=mapping)
                     ks.hset("device.states", mapping={device:state})
                 else:
+                    print(f"{OCMEP}{url} : {data}")
+                    print(response.status_code)
                     print("WARN: Error response from ocmodule.")
                     return
 
-        elif deviceProps["module"] == "tplconnect":
-
-            try:
-                response = requests.put(TPLEP + "/tpl/devices/id/" + device + "/" + state)
-            except:
-                print("WARN: Unable to connect to {}".format(OCMEP))
-                return
-            else:
-                if response.ok:
-                    key = "device.state.id." + device
-                    ks.set(key, state)
-                    ks.expire(key, STATE_KEY_EXPIRE)
-                    ks.hset("device.id." + device, mapping={'state':state})
-                    ks.hset("device.states", mapping={device:state})
-                else:
-                    print("WARN: Error response from tplconnect.")
-                    return
         else:
             print("ERROR: Invalid 'module' key for device {}".format(device))
             return
@@ -783,26 +621,3 @@ class DeviceIcons(object):
         return
 
  
-# /api/devices/networks
-
-@cherrypy.expose
-class DeviceNetworks(object):
-
-    @cherrypy.tools.json_out()
-    def GET(self):
-
-        cmd = ['/home/pi/tgr/bin/wifi', 'list']
-        proc = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        o, e = proc.communicate()
-        result = o.decode('ascii').strip('\n')
-
-        networks = list()
-        for net in result.split('\n'):
-            if net.startswith("TP-LINK"):
-                networks.append(net)
-
-        return {'data':networks}
-
-

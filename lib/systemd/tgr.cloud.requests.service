@@ -7,7 +7,7 @@ After=tgr.redis.service tgr.sensor.module.service tgr.api.service
 Type=simple
 Restart=always
 EnvironmentFile=/home/pi/tgr/etc/tgr.conf
-ExecStart=/usr/bin/python -u /home/pi/tgr/sbin/svc-cloud-requests.py
+ExecStart=/usr/bin/python3 -u /home/pi/tgr/sbin/svc-cloud-requests.py
 SyslogIdentifier=tgr-cloud-requests
 
 [Install]

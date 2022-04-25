@@ -5,4 +5,5 @@ RUN useradd -ms /bin/bash api
 USER api
 WORKDIR /api
 COPY *.py /api/
+COPY sysinfo /api/
 CMD ["python", "-u", "app.py"]

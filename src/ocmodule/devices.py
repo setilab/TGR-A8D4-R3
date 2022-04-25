@@ -5,29 +5,64 @@ import cherrypy
 import json
 from defines import *
 
-relays = {
-    "acrl1":"off",
-    "acrl2":"off",
-    "acrl3":"off",
-    "acrl4":"off",
-    "acrl5":"off",
-    "acrl6":"off",
-    "acrl7":"off",
-    "acrl8":"off",
-    "dcrl1":"off",
-    "dcrl2":"off",
-    "dcrl3":"off",
-    "dcrl4":"off"
-}
-
+udpFanPacket = {"system":{"update":{"fan":{"id":"unset","speed":"unset"}}}}
 udpRelayPacket = {"system":{"update":{"relay":{"id":"unset","state":"unset"}}}}
+
+@cherrypy.expose
+class Fans(object):
+
+    @cherrypy.tools.json_out()
+    def GET(self, name):
+
+        if not name in fanIds:
+            raise cherrypy.HTTPError(404, "Fan not found.")
+            return
+
+        for fan in fans:
+            if fan["id"] == name:
+                return fan
+
+    def POST(self, name, speed):
+
+        if not name in fanIds:
+            raise cherrypy.HTTPError(400, "Invalid fan name.")
+            return
+
+        if not int(speed) in range(0,256):
+            raise cherrypy.HTTPError(400, "Invalid speed parameter.")
+            return
+
+        for fan in fans:
+            if fan["id"] == name:
+                fan["speed"] = speed
+
+        udpFanPacket["system"]["update"]["fan"]["id"] = name
+        udpFanPacket["system"]["update"]["fan"]["speed"] = speed
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+        s.sendto(json.dumps(udpFanPacket).encode('utf-8'), (ip, port))
+
+        cherrypy.response.status = 202
+        return
+
 
 @cherrypy.expose
 class Relays(object):
 
+    @cherrypy.tools.json_out()
+    def GET(self, name):
+
+        if not name in relayIds:
+            raise cherrypy.HTTPError(404, "Relay not found.")
+            return
+
+        for relay in relays:
+            if relay["id"] == name:
+                return relay
+
     def POST(self, name, state):
 
-        if not name in relays.keys():
+        if not name in relayIds:
             raise cherrypy.HTTPError(400, "Invalid relay name.")
             return
 
@@ -35,7 +70,9 @@ class Relays(object):
             raise cherrypy.HTTPError(400, "Invalid state parameter.")
             return
 
-        relays[name] = state
+        for relay in relays:
+            if relay["id"] == name:
+                relay["state"] = state
 
         udpRelayPacket["system"]["update"]["relay"]["id"] = name
         udpRelayPacket["system"]["update"]["relay"]["state"] = state

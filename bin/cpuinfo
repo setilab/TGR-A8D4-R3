@@ -1,4 +1,4 @@
 #!/bin/bash
 
-grep Model /proc/cpuinfo | awk -F': ' '{ print $2 }'
+grep 'model name' /proc/cpuinfo | awk -F': ' '{ print $2 }'
 
